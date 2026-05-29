@@ -15,8 +15,8 @@ const compressImage = (file) => {
       img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1920; // Full HD quality, highly detailed on all devices
-        const MAX_HEIGHT = 1920;
+        const MAX_WIDTH = 1200; // Full HD quality, highly detailed on all devices
+        const MAX_HEIGHT = 1200;
         let width = img.width;
         let height = img.height;
 
@@ -38,7 +38,7 @@ const compressImage = (file) => {
         ctx.drawImage(img, 0, 0, width, height);
 
         // Convert image to JPEG with 0.85 quality (visually indistinguishable from original, still under 350KB)
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
         resolve(dataUrl);
       };
       img.onerror = (error) => reject(error);
@@ -232,7 +232,7 @@ function App() {
             const convertedBlob = await heic2any({
               blob: file,
               toType: 'image/jpeg',
-              quality: 0.85
+              quality: 0.70
             });
             const blobToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
             file = new File([blobToUse], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
