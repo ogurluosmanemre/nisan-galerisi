@@ -239,6 +239,9 @@ function App() {
 
     setIsUploading(false);
     closeModal();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
 
     if (failCount === 0) {
       if (successCount === 1) {
@@ -679,17 +682,18 @@ function App() {
                   <p style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>
                     Dokunarak seçin veya sürükleyip bırakın
                   </p>
-                  
-                  {/* Accept images and allow camera capture on mobile */}
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden-input" 
-                    accept="image/*" 
-                    multiple
-                    onChange={onFileSelect}
-                  />
                 </div>
+
+                {/* Accept images and allow camera capture on mobile */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden-input" 
+                  accept="image/*" 
+                  multiple
+                  onChange={onFileSelect}
+                  onClick={(e) => e.stopPropagation()}
+                />
 
                 <button 
                   className="upload-button" 
