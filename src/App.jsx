@@ -189,8 +189,8 @@ function App() {
   }, []);
 
   // Filter approved and pending photos
-  const approvedPhotos = photos.filter(photo => photo.approved !== false);
-  const pendingPhotos = photos.filter(photo => photo.approved === false);
+  const approvedPhotos = photos.filter(photo => photo.approved !== false && photo.approved !== 'false');
+  const pendingPhotos = photos.filter(photo => photo.approved === false || photo.approved === 'false');
 
   const handleUploadClick = () => {
     setIsModalOpen(true);
