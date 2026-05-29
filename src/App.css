@@ -5,39 +5,211 @@
 }
 
 .header {
-  padding: 3rem 1rem 2rem;
+  padding: 4rem 1rem 3rem;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Arch Frame with drop shadow (no double border) */
+.arch-frame-outer {
+  margin: 0 auto 1.5rem;
+  padding: 0;
+  border: none;
+  width: 260px;
+  height: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+}
+
+.arch-frame-inner {
+  border: none;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-image-container {
-  margin: 0 auto 1.5rem;
-  width: 280px;
-  height: 350px;
-  border-radius: 140px 140px 24px 24px; /* Elegant arch shape */
+  width: 100%;
+  height: 100%;
+  border-radius: 130px 130px 0 0;
   overflow: hidden;
-  border: 6px solid var(--accent-color);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Subtle, elegant shadow */
 }
 
 .hero-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 25%;
+  object-position: center 20%;
+}
+
+.invite-date {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  color: var(--text-light);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .header h1 {
-  font-size: 4rem;
+  font-family: 'Great Vibes', cursive;
+  font-size: 3.5rem;
   color: var(--accent-color);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.02em;
+  margin: 0.75rem 0;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.name-line {
+  display: block;
+}
+
+.and-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-family: 'Great Vibes', cursive;
+  font-size: 2.1rem;
+  color: var(--accent-color);
+  margin: 0.15rem 0;
+  text-transform: lowercase;
+}
+
+.and-symbol::before,
+.and-symbol::after {
+  content: "";
+  width: 55px;
+  height: 1px;
+  background: rgba(29, 53, 87, 0.2);
 }
 
 .header p {
-  font-size: 1.1rem;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.9rem;
   color: var(--text-light);
-  max-width: 600px;
+  max-width: 440px;
+  margin: 1rem auto 1.75rem;
+  line-height: 1.6;
+}
+
+/* Elegant Heart Dividers */
+.heart-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem auto;
+  width: 100%;
+  max-width: 260px;
+}
+
+.heart-divider::before,
+.heart-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(29, 53, 87, 0.15);
+}
+
+.heart-divider span {
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Invitation Invite Button */
+.invite-button {
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.9rem 2.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(74, 93, 78, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+}
+
+.invite-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(74, 93, 78, 0.25);
+}
+
+.invite-button:active {
+  transform: translateY(1px);
+}
+
+/* Details columns at bottom of invite */
+.details-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  max-width: 500px;
   margin: 0 auto;
+  padding: 1.5rem 0;
+  position: relative;
+}
+
+.details-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+.details-column:not(:last-child) {
+  border-right: 1px solid rgba(74, 93, 78, 0.15);
+}
+
+.details-icon {
+  color: var(--accent-color);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.details-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.details-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: var(--text-light);
 }
 
 /* Masonry Gallery Layout */
@@ -427,9 +599,9 @@
 
 .card-names {
   font-family: 'Great Vibes', cursive;
-  font-size: 3.5rem;
+  font-size: 2.75rem;
   color: var(--accent-color);
-  margin: 0;
+  margin: 0.5rem 0;
   line-height: 1.1;
 }
 
@@ -482,12 +654,162 @@
   color: var(--text-light);
 }
 
+/* Protection Styles */
+.photo-overlay-protection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  background: transparent;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.screenshot-protection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(246, 245, 242, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.protection-content {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 15px 35px rgba(74, 93, 78, 0.1);
+  border: 1px solid rgba(74, 93, 78, 0.15);
+}
+
+.protection-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #354238;
+  margin-bottom: 0.75rem;
+}
+
+.protection-content p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* Admin Approval Queue Styles */
+.pending-section {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 93, 78, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.pending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.pending-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+  border: 1px solid rgba(74, 93, 78, 0.12);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pending-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.pending-img-container {
+  width: 100%;
+  height: 125px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.pending-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.pending-img-container:hover img {
+  transform: scale(1.06);
+}
+
+.pending-actions {
+  display: flex;
+  border-top: 1px solid rgba(74, 93, 78, 0.1);
+}
+
+.pending-actions button {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.approve-btn {
+  background: rgba(74, 93, 78, 0.08);
+  color: var(--accent-color);
+}
+
+.approve-btn:hover {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.reject-btn {
+  background: rgba(220, 38, 38, 0.04);
+  color: rgb(220, 38, 38);
+  border-left: 1px solid rgba(74, 93, 78, 0.1) !important;
+}
+
+.reject-btn:hover {
+  background: rgb(220, 38, 38);
+  color: #ffffff;
+}
+
 /* Print CSS Rules */
 @media print {
   body {
     background: #ffffff !important;
   }
+  /* Hide gallery, lightbox and other UI on print to prevent printing photos */
+  .app-wrapper, .lightbox-overlay, .modal-overlay, .fab-container, .screenshot-protection-overlay {
+    display: none !important;
+  }
   .card-print-container {
+    display: flex !important;
     background: #ffffff !important;
     padding: 0 !important;
     min-height: auto !important;

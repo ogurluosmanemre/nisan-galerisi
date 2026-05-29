@@ -1,18 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Elegant neutral palette */
+  /* Elegant neutral palette - Deep Navy Blue (Lacivert) & Gold theme */
   --bg-color: #fcfbf9;
-  --text-main: #2c2a29;
-  --text-light: #6b6661;
-  --accent-color: #1a1a1a; /* Elegant Black */
-  --accent-hover: #333333; /* Dark Charcoal */
-  --secondary-accent: #2a2a2a; /* Soft Black */
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --text-main: #1D2A44;     /* Deep navy charcoal */
+  --text-light: #4A607A;    /* Elegant slate steel blue */
+  --accent-color: #1D3557;  /* Prestigious Navy Blue (Lacivert) */
+  --accent-hover: #15263F;  /* Darker Navy Blue */
+  --secondary-accent: #2A4365; /* Medium royal navy */
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(29, 53, 87, 0.1);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.015);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.015);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.015);
 }
 
 * {
@@ -23,21 +23,34 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #E2ECE9; /* Soft, elegant water green (su yeşili) background */
+  background-color: #E2ECE9; /* Fallback su yeşili */
+  background-image: url('/arkaplan.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
+  
+  /* Prevent copy/selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #root {
   position: relative;
-  z-index: 1; /* Content stays above the background image */
+  z-index: 1; /* Content stays above background */
 }
 
 h1 {
-  font-family: 'Great Vibes', cursive;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
   font-weight: 400;
 }
 

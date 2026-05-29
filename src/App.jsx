@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, X, UploadCloud, Image as ImageIcon, Loader2, ChevronLeft, ChevronRight, Lock, Unlock, Trash2, Download } from 'lucide-react';
+import { Camera, X, UploadCloud, Image as ImageIcon, Loader2, ChevronLeft, ChevronRight, Lock, Unlock, Trash2, Download, MapPin } from 'lucide-react';
 import { db } from './firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import JSZip from 'jszip';
 import './App.css';
 
@@ -47,6 +47,39 @@ const compressImage = (file) => {
   });
 };
 
+// Custom SVG Icons for the wedding invitation layout
+const CalendarHeartIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+    <path d="M12 13.5c-.8-1-2.5-1-2.5.8 0 1.2 1.3 2.2 2.5 3.2 1.2-1 2.5-2 2.5-3.2 0-1.8-1.7-1.8-2.5-.8z" fill="currentColor" />
+  </svg>
+);
+
+const InterlockingRingsIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="13" r="4.5" />
+    <circle cx="15" cy="13" r="4.5" />
+    <path d="M9 8.5 L9.5 7 L9 5.5 L8.5 7 Z" fill="currentColor" stroke="none" />
+    <path d="M15 8.5 L15.5 7 L15 5.5 L14.5 7 Z" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const CameraHeartIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <path d="M12 14c-.6-1-1.8-1-1.8.6 0 .9.9 1.6 1.8 2.4 1-.8 1.8-1.5 1.8-2.4 0-1.6-1.2-1.6-1.8-.6z" fill="currentColor" />
+  </svg>
+);
+
+const HeartDivider = () => (
+  <div className="heart-divider">
+    <span>♡</span>
+  </div>
+);
+
 function App() {
   const [photos, setPhotos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,6 +95,12 @@ function App() {
 
   // Card View State (Simple routing via query param ?kart)
   const [isCardView, setIsCardView] = useState(window.location.search.includes('kart'));
+
+  // Screenshot/Blur State
+  const [isWindowBlurred, setIsWindowBlurred] = useState(false);
+
+  // Active list for Lightbox (either approvedPhotos or pendingPhotos)
+  const [lightboxList, setLightboxList] = useState([]);
 
   const fileInputRef = useRef(null);
   const touchStartX = useRef(0);
@@ -81,6 +120,77 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // Screen protection listeners
+  useEffect(() => {
+    if (isAdmin) {
+      setIsWindowBlurred(false);
+      return;
+    }
+
+    const handleBlur = () => {
+      setIsWindowBlurred(true);
+    };
+    
+    const handleFocus = () => {
+      setIsWindowBlurred(false);
+    };
+
+    const handleVisibilityChange = () => {
+      setIsWindowBlurred(document.hidden);
+    };
+
+    const handleKeyDown = (e) => {
+      // Print Screen
+      if (e.key === 'PrintScreen') {
+        try {
+          navigator.clipboard.writeText('');
+        } catch (err) {}
+        alert('Ekran görüntüsü alma engellendir.');
+        e.preventDefault();
+      }
+      // Print page
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        alert('Sayfayı yazdırma işlemi engellenmiştir.');
+        e.preventDefault();
+      }
+      // Save page
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        alert('Sayfayı kaydetme işlemi engellenmiştir.');
+        e.preventDefault();
+      }
+      // Copy
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        e.preventDefault();
+      }
+      // View Source
+      if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+        e.preventDefault();
+      }
+      // Inspect Element
+      if (e.key === 'F12' || ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j'))) {
+        e.preventDefault();
+      }
+    };
+
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    window.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [isAdmin]);
+
   // Listen to popstate to toggle card view dynamically
   useEffect(() => {
     const handlePopState = () => {
@@ -89,6 +199,10 @@ function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Filter approved and pending photos
+  const approvedPhotos = photos.filter(photo => photo.approved !== false);
+  const pendingPhotos = photos.filter(photo => photo.approved === false);
 
   const handleUploadClick = () => {
     setIsModalOpen(true);
@@ -114,14 +228,16 @@ function App() {
       // Compress the image and get the base64 URL
       const compressedUrl = await compressImage(file);
       
-      // Save directly to Firestore Database
+      // Save directly to Firestore Database with approval pending
       await addDoc(collection(db, "photos"), {
         url: compressedUrl,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        approved: false // Needs admin approval
       });
 
       setIsUploading(false);
       closeModal();
+      alert("Fotoğrafınız başarıyla yüklendi! Yönetici onayından sonra galeride görünecektir.");
     } catch (error) {
       console.error("Error during image upload/compression:", error);
       alert("Fotoğraf işlenirken ve yüklenirken bir hata oluştu.");
@@ -150,16 +266,16 @@ function App() {
   // Gallery Navigation Functions
   const handlePrevPhoto = (e) => {
     if (e) e.stopPropagation();
-    if (selectedPhotoIndex !== null && photos.length > 0) {
-      const nextIndex = selectedPhotoIndex === 0 ? photos.length - 1 : selectedPhotoIndex - 1;
+    if (selectedPhotoIndex !== null && lightboxList.length > 0) {
+      const nextIndex = selectedPhotoIndex === 0 ? lightboxList.length - 1 : selectedPhotoIndex - 1;
       setSelectedPhotoIndex(nextIndex);
     }
   };
 
   const handleNextPhoto = (e) => {
     if (e) e.stopPropagation();
-    if (selectedPhotoIndex !== null && photos.length > 0) {
-      const nextIndex = selectedPhotoIndex === photos.length - 1 ? 0 : selectedPhotoIndex + 1;
+    if (selectedPhotoIndex !== null && lightboxList.length > 0) {
+      const nextIndex = selectedPhotoIndex === lightboxList.length - 1 ? 0 : selectedPhotoIndex + 1;
       setSelectedPhotoIndex(nextIndex);
     }
   };
@@ -179,7 +295,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPhotoIndex, photos]);
+  }, [selectedPhotoIndex, lightboxList]);
 
   // Touch Swipe Handlers for Mobile Devices
   const handleTouchStart = (e) => {
@@ -225,6 +341,34 @@ function App() {
         await deleteDoc(doc(db, "photos", photoId));
       } catch (error) {
         console.error("Error deleting photo:", error);
+        alert("Fotoğraf silinirken bir hata oluştu.");
+      }
+    }
+  };
+
+  const handleApprove = async (photoId) => {
+    try {
+      await updateDoc(doc(db, "photos", photoId), {
+        approved: true
+      });
+    } catch (error) {
+      console.error("Error approving photo:", error);
+      alert("Fotoğraf onaylanırken bir hata oluştu.");
+    }
+  };
+
+  const handleApproveFromLightbox = async (photoId) => {
+    await handleApprove(photoId);
+    setSelectedPhotoIndex(null);
+  };
+
+  const handleDeleteFromLightbox = async (photoId) => {
+    if (window.confirm("Bu fotoğrafı reddetmek ve silmek istediğinize emin misiniz?")) {
+      try {
+        await deleteDoc(doc(db, "photos", photoId));
+        setSelectedPhotoIndex(null);
+      } catch (error) {
+        console.error("Error deleting photo from lightbox:", error);
         alert("Fotoğraf silinirken bir hata oluştu.");
       }
     }
@@ -290,7 +434,11 @@ function App() {
 
         <div className="printable-card-frame">
           <div className="card-decor-top">✿ ✿ ✿</div>
-          <h2 className="card-names">Burcu & Osman Emre</h2>
+          <h2 className="card-names">
+            <span className="name-line">Burcu</span>
+            <span className="and-symbol">and</span>
+            <span className="name-line">Osman Emre</span>
+          </h2>
           <h3 className="card-title">Nişan Hatırası</h3>
           
           <div className="card-qr-container">
@@ -313,11 +461,49 @@ function App() {
     <div className="app-wrapper">
       {/* Header Section */}
       <header className="header text-center animate-fade-in">
-        <div className="hero-image-container">
-          <img src="/kapak.jpeg?v=5" alt="Burcu ve Osman Emre" className="hero-image" />
+        <div className="arch-frame-outer">
+          <div className="arch-frame-inner">
+            <div className="hero-image-container">
+              <img src="/kapak.jpeg?v=5" alt="Burcu ve Osman Emre" className="hero-image" />
+            </div>
+          </div>
         </div>
-        <h1>Burcu & Osman Emre</h1>
-        <p>Nişan törenimize hoş geldiniz! En güzel anılarımızı yakalayın ve bizimle paylaşın.</p>
+
+        <HeartDivider />
+
+        <div className="invite-date">11 Temmuz 2026</div>
+        <h1>
+          <span className="name-line">Burcu</span>
+          <span className="and-symbol">and</span>
+          <span className="name-line">Osman Emre</span>
+        </h1>
+        <p>Nişan törenimize hoş geldiniz!<br />En güzel anılarımızı yakalayın ve bizimle paylaşın.</p>
+
+        <div className="details-container">
+          <div className="details-column">
+            <div className="details-icon">
+              <CalendarHeartIcon />
+            </div>
+            <div className="details-title">11 Temmuz 2026</div>
+            <div className="details-subtitle">Cumartesi</div>
+          </div>
+          <div className="details-column">
+            <div className="details-icon">
+              <MapPin size={22} strokeWidth={1.5} />
+            </div>
+            <div className="details-title">BİRGÜL DAVET EVİ</div>
+            <div className="details-subtitle">Gebze</div>
+          </div>
+          <div className="details-column">
+            <div className="details-icon">
+              <InterlockingRingsIcon />
+            </div>
+            <div className="details-title">BİRLİKTE</div>
+            <div className="details-subtitle">Sonsuza</div>
+          </div>
+        </div>
+
+        <HeartDivider />
       </header>
 
       {/* Admin Panel Controls */}
@@ -362,9 +548,38 @@ function App() {
         </div>
       )}
 
-      {/* Masonry Gallery */}
+      {/* Admin Panel Approval Queue */}
+      {isAdmin && pendingPhotos.length > 0 && (
+        <section className="container pending-section animate-fade-in" style={{ marginBottom: '3rem', marginTop: '1rem' }}>
+          <h2 style={{ fontSize: '1.5rem', color: 'var(--accent-color)', marginBottom: '1.25rem', borderBottom: '1px solid rgba(74,93,78,0.12)', paddingBottom: '0.5rem' }}>
+            Onay Bekleyen Fotoğraflar ({pendingPhotos.length})
+          </h2>
+          <div className="pending-grid">
+            {pendingPhotos.map((photo, index) => (
+              <div key={photo.id} className="pending-card glass-panel">
+                <div className="pending-img-container" onClick={() => {
+                  setSelectedPhotoIndex(index);
+                  setLightboxList(pendingPhotos);
+                }}>
+                  <img src={photo.url} alt="Onay bekliyor" />
+                </div>
+                <div className="pending-actions">
+                  <button className="approve-btn" onClick={() => handleApprove(photo.id)}>
+                    Onayla
+                  </button>
+                  <button className="reject-btn" onClick={() => handleDelete(photo.id)}>
+                    Sil
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Masonry Gallery with Protection Overlays */}
       <main className="container">
-        {photos.length === 0 ? (
+        {approvedPhotos.length === 0 ? (
           <div className="text-center animate-fade-in delay-200" style={{ padding: '3rem 1rem', color: 'var(--text-light)' }}>
             <ImageIcon size={48} style={{ opacity: 0.2, margin: '0 auto 1rem' }} />
             <p>Henüz fotoğraf yüklenmedi.</p>
@@ -372,21 +587,26 @@ function App() {
           </div>
         ) : (
           <div className="gallery animate-fade-in delay-200">
-            {photos.map((photo, index) => (
+            {approvedPhotos.map((photo, index) => (
               <div 
                 key={photo.id} 
                 className="photo-card glass-panel"
                 style={{ position: 'relative' }}
+                onClick={() => {
+                  setSelectedPhotoIndex(index);
+                  setLightboxList(approvedPhotos);
+                }}
               >
-                <img 
-                  src={photo.url} 
-                  alt="Nişan Hatırası" 
-                  loading="lazy"
-                  onClick={() => setSelectedPhotoIndex(index)}
-                  style={{ cursor: 'pointer' }}
-                  onContextMenu={!isAdmin ? (e) => e.preventDefault() : undefined}
-                  onDragStart={!isAdmin ? (e) => e.preventDefault() : undefined}
-                />
+                <div style={{ position: 'relative', width: '100%', display: 'block' }}>
+                  <img 
+                    src={photo.url} 
+                    alt="Nişan Hatırası" 
+                    loading="lazy"
+                    onContextMenu={!isAdmin ? (e) => e.preventDefault() : undefined}
+                    onDragStart={!isAdmin ? (e) => e.preventDefault() : undefined}
+                  />
+                  {!isAdmin && <div className="photo-overlay-protection" />}
+                </div>
                 {isAdmin && (
                   <button 
                     className="delete-photo-btn"
@@ -409,7 +629,7 @@ function App() {
       <div className="fab-container animate-fade-in delay-300">
         <button className="upload-button" onClick={handleUploadClick}>
           <Camera size={24} />
-          <span>Fotoğraf Yükle</span>
+          <span>Anılarınızı Bizimle Paylaşın</span>
         </button>
       </div>
 
@@ -492,22 +712,52 @@ function App() {
 
           {/* Image & Download Button */}
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
-            <img 
-              src={photos[selectedPhotoIndex].url} 
-              alt="Büyük Görsel" 
-              className="lightbox-image" 
-              onContextMenu={!isAdmin ? (e) => e.preventDefault() : undefined}
-              onDragStart={!isAdmin ? (e) => e.preventDefault() : undefined}
-            />
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <img 
+                src={lightboxList[selectedPhotoIndex].url} 
+                alt="Büyük Görsel" 
+                className="lightbox-image" 
+                onContextMenu={!isAdmin ? (e) => e.preventDefault() : undefined}
+                onDragStart={!isAdmin ? (e) => e.preventDefault() : undefined}
+              />
+              {!isAdmin && <div className="photo-overlay-protection" />}
+            </div>
             {isAdmin && (
-              <a 
-                href={photos[selectedPhotoIndex].url} 
-                download="nisan-hatirasi.jpg" 
-                className="download-button"
-                onClick={e => e.stopPropagation()}
-              >
-                Fotoğrafı İndir
-              </a>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {lightboxList[selectedPhotoIndex].approved === false ? (
+                  <>
+                    <button 
+                      className="download-button"
+                      style={{ background: 'rgba(220, 38, 38, 0.95)', color: '#ffffff' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFromLightbox(lightboxList[selectedPhotoIndex].id);
+                      }}
+                    >
+                      Reddet
+                    </button>
+                    <button 
+                      className="download-button"
+                      style={{ background: 'var(--accent-color)', color: '#ffffff' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApproveFromLightbox(lightboxList[selectedPhotoIndex].id);
+                      }}
+                    >
+                      Fotoğrafı Onayla
+                    </button>
+                  </>
+                ) : (
+                  <a 
+                    href={lightboxList[selectedPhotoIndex].url} 
+                    download="nisan-hatirasi.jpg" 
+                    className="download-button"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    Fotoğrafı İndir
+                  </a>
+                )}
+              </div>
             )}
           </div>
 
@@ -594,6 +844,17 @@ function App() {
           )}
         </button>
       </footer>
+
+      {/* Screen blur protection overlay */}
+      {isWindowBlurred && !isAdmin && (
+        <div className="screenshot-protection-overlay">
+          <div className="protection-content">
+            <Lock size={48} style={{ marginBottom: '1rem', color: 'var(--accent-color)' }} />
+            <h3>Ekran Görünümü Korumalı</h3>
+            <p>Güvenlik nedeniyle bu alanda ekran görüntüsü alınamaz.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
