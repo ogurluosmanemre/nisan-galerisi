@@ -218,8 +218,31 @@ function App() {
     let failCount = 0;
 
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      let file = files[i];
       try {
+        // Check if the file is HEIC/HEIF (common for iOS Live Photos / HEIC format)
+        const isHeic = file.name.toLowerCase().endsWith('.heic') || 
+                       file.name.toLowerCase().endsWith('.heif') || 
+                       file.type === 'image/heic' || 
+                       file.type === 'image/heif';
+
+        if (isHeic) {
+          try {
+            const heic2any = (await import('heic2any')).default;
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: 'image/jpeg',
+              quality: 0.85
+            });
+            const blobToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            file = new File([blobToUse], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+              type: 'image/jpeg'
+            });
+          } catch (heicError) {
+            console.error("HEIC conversion failed:", heicError);
+          }
+        }
+
         // Compress the image and get the base64 URL
         const compressedUrl = await compressImage(file);
         
@@ -684,12 +707,12 @@ function App() {
                   </p>
                 </div>
 
-                {/* Accept images and allow camera capture on mobile */}
+                {/* Accept images (including HEIC/HEIF for iOS Live Photos) */}
                 <input 
                   type="file" 
                   ref={fileInputRef} 
                   className="hidden-input" 
-                  accept="image/*" 
+                  accept="image/*, .heic, .heif, image/heic, image/heif" 
                   multiple
                   onChange={onFileSelect}
                   onClick={(e) => e.stopPropagation()}
