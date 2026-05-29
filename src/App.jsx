@@ -127,14 +127,6 @@ function App() {
       return;
     }
 
-    const handleBlur = () => {
-      setIsWindowBlurred(true);
-    };
-    
-    const handleFocus = () => {
-      setIsWindowBlurred(false);
-    };
-
     const handleVisibilityChange = () => {
       setIsWindowBlurred(document.hidden);
     };
@@ -176,15 +168,11 @@ function App() {
       e.preventDefault();
     };
 
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     window.addEventListener('contextmenu', handleContextMenu);
 
     return () => {
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('keydown', handleKeyDown, { capture: true });
       window.removeEventListener('contextmenu', handleContextMenu);

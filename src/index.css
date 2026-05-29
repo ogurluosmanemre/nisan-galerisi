@@ -23,12 +23,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #E2ECE9; /* Fallback su yeşili */
-  background-image: url('/arkaplan.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-color: #E2ECE9; /* Soft, elegant water green */
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
