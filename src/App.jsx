@@ -500,7 +500,7 @@ function App() {
               <MapPin size={22} strokeWidth={1.5} />
             </div>
             <div className="details-title">BİRGÜL DAVET EVİ</div>
-            <div className="details-subtitle">Gebze</div>
+            <div className="details-subtitle">Darıca</div>
           </div>
           <div className="details-column">
             <div className="details-icon">
