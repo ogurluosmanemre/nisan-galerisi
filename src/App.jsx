@@ -37,8 +37,11 @@ const compressImage = (file) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert image to JPEG with 0.85 quality (visually indistinguishable from original, still under 350KB)
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        // Convert image to WebP with 0.75 quality if supported, otherwise fallback to JPEG
+        let dataUrl = canvas.toDataURL('image/webp', 0.75);
+        if (!dataUrl.startsWith('data:image/webp')) {
+          dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        }
         resolve(dataUrl);
       };
       img.onerror = (error) => reject(error);
@@ -211,14 +214,30 @@ function App() {
 
   const handleNewPhotos = async (files) => {
     if (!files || files.length === 0) return;
+
+    // Filter out non-image files (e.g. .mov files sent by iOS for Live Photos)
+    const imageFiles = files.filter(file => {
+      const name = file.name.toLowerCase();
+      const type = file.type.toLowerCase();
+      return type.startsWith('image/') || 
+             name.endsWith('.heic') || 
+             name.endsWith('.heif') || 
+             name.endsWith('.webp');
+    });
+
+    if (imageFiles.length === 0) {
+      alert("Lütfen sadece fotoğraf dosyaları seçin.");
+      return;
+    }
+
     setIsUploading(true);
-    setUploadProgress({ current: 0, total: files.length });
+    setUploadProgress({ current: 0, total: imageFiles.length });
 
     let successCount = 0;
     let failCount = 0;
 
-    for (let i = 0; i < files.length; i++) {
-      let file = files[i];
+    for (let i = 0; i < imageFiles.length; i++) {
+      let file = imageFiles[i];
       try {
         // Check if the file is HEIC/HEIF (common for iOS Live Photos / HEIC format)
         const isHeic = file.name.toLowerCase().endsWith('.heic') || 
