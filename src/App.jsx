@@ -85,6 +85,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(null);
   
   // Admin States
@@ -203,33 +204,52 @@ function App() {
   };
 
   const onFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleNewPhoto(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      handleNewPhotos(Array.from(e.target.files));
     }
   };
 
-  const handleNewPhoto = async (file) => {
-    if (!file) return;
+  const handleNewPhotos = async (files) => {
+    if (!files || files.length === 0) return;
     setIsUploading(true);
+    setUploadProgress({ current: 0, total: files.length });
 
-    try {
-      // Compress the image and get the base64 URL
-      const compressedUrl = await compressImage(file);
-      
-      // Save directly to Firestore Database with approval pending
-      await addDoc(collection(db, "photos"), {
-        url: compressedUrl,
-        timestamp: serverTimestamp(),
-        approved: false // Needs admin approval
-      });
+    let successCount = 0;
+    let failCount = 0;
 
-      setIsUploading(false);
-      closeModal();
-      alert("Fotoğrafınız başarıyla yüklendi! Yönetici onayından sonra galeride görünecektir.");
-    } catch (error) {
-      console.error("Error during image upload/compression:", error);
-      alert("Fotoğraf işlenirken ve yüklenirken bir hata oluştu.");
-      setIsUploading(false);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        // Compress the image and get the base64 URL
+        const compressedUrl = await compressImage(file);
+        
+        // Save directly to Firestore Database with approval pending
+        await addDoc(collection(db, "photos"), {
+          url: compressedUrl,
+          timestamp: serverTimestamp(),
+          approved: false // Needs admin approval
+        });
+        successCount++;
+      } catch (error) {
+        console.error("Error during image upload/compression:", error);
+        failCount++;
+      }
+      setUploadProgress(prev => ({ ...prev, current: i + 1 }));
+    }
+
+    setIsUploading(false);
+    closeModal();
+
+    if (failCount === 0) {
+      if (successCount === 1) {
+        alert("Fotoğrafınız başarıyla yüklendi! Yönetici onayından sonra galeride görünecektir.");
+      } else {
+        alert(`${successCount} adet fotoğraf başarıyla yüklendi! Yönetici onayından sonra galeride görünecektir.`);
+      }
+    } else if (successCount > 0) {
+      alert(`${successCount} adet fotoğraf başarıyla yüklendi, ${failCount} adet fotoğraf yüklenirken hata oluştu. Yönetici onayından sonra galeride görünecektir.`);
+    } else {
+      alert("Fotoğraflar yüklenirken bir hata oluştu.");
     }
   };
 
@@ -246,8 +266,8 @@ function App() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleNewPhoto(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleNewPhotos(Array.from(e.dataTransfer.files));
     }
   };
 
@@ -632,8 +652,13 @@ function App() {
             {isUploading ? (
               <div className="text-center" style={{ padding: '2rem 0' }}>
                 <Loader2 size={48} className="upload-icon" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }} />
-                <h3>Yükleniyor...</h3>
-                <p style={{ color: 'var(--text-light)' }}>Lütfen bekleyin, anınız kaydediliyor.</p>
+                <h3>Fotoğraflar Yükleniyor...</h3>
+                {uploadProgress.total > 1 && (
+                  <p style={{ color: 'var(--accent-color)', fontWeight: '600', fontSize: '1.2rem', margin: '0.5rem 0' }}>
+                    {uploadProgress.current} / {uploadProgress.total}
+                  </p>
+                )}
+                <p style={{ color: 'var(--text-light)' }}>Lütfen bekleyin, anılarınız kaydediliyor.</p>
               </div>
             ) : (
               <>
@@ -661,6 +686,7 @@ function App() {
                     ref={fileInputRef} 
                     className="hidden-input" 
                     accept="image/*" 
+                    multiple
                     onChange={onFileSelect}
                   />
                 </div>
