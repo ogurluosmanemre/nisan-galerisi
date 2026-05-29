@@ -60,6 +60,9 @@ function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
 
+  // Card View State (Simple routing via query param ?kart)
+  const [isCardView, setIsCardView] = useState(window.location.search.includes('kart'));
+
   const fileInputRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -76,6 +79,15 @@ function App() {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Listen to popstate to toggle card view dynamically
+  useEffect(() => {
+    const handlePopState = () => {
+      setIsCardView(window.location.search.includes('kart'));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleUploadClick = () => {
@@ -252,6 +264,51 @@ function App() {
     }
   };
 
+  // RENDER CARD PRINT VIEW
+  if (isCardView) {
+    return (
+      <div className="card-print-container animate-fade-in">
+        <div className="no-print print-header">
+          <button 
+            onClick={() => {
+              window.history.pushState({}, '', '/');
+              setIsCardView(false);
+            }} 
+            className="upload-button" 
+            style={{ fontSize: '0.9rem', padding: '0.5rem 1.25rem', background: '#333' }}
+          >
+            ← Galeriye Dön
+          </button>
+          <button 
+            onClick={() => window.print()} 
+            className="upload-button" 
+            style={{ fontSize: '0.9rem', padding: '0.5rem 1.25rem', background: 'var(--accent-color)' }}
+          >
+            Yazdır (Print)
+          </button>
+        </div>
+
+        <div className="printable-card-frame">
+          <div className="card-decor-top">✿ ✿ ✿</div>
+          <h2 className="card-names">Burcu & Osman Emre</h2>
+          <h3 className="card-title">Nişan Hatırası</h3>
+          
+          <div className="card-qr-container">
+            <img src="/qr-kod.png" alt="QR Kod" className="card-qr-img" />
+          </div>
+
+          <div className="card-instruction">
+            <p className="highlight">Fotoğraflarınızla Anımızı Paylaşın!</p>
+            <p>Kameranızla QR kodu okutarak bugün çektiğiniz tüm fotoğrafları doğrudan galerimize yükleyebilirsiniz.</p>
+          </div>
+
+          <div className="card-decor-bottom">✿ ✿ ✿</div>
+          <div className="card-footer">burcu-osmanemre.vercel.app</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-wrapper">
       {/* Header Section */}
@@ -266,29 +323,41 @@ function App() {
       {/* Admin Panel Controls */}
       {isAdmin && (
         <div className="admin-bar animate-fade-in container" style={{ marginBottom: '2rem' }}>
-          <div className="glass-panel" style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(26, 26, 26, 0.05)', borderColor: 'rgba(26, 26, 26, 0.1)' }}>
+          <div className="glass-panel" style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(26, 26, 26, 0.05)', borderColor: 'rgba(26, 26, 26, 0.1)', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <strong style={{ color: 'var(--accent-color)' }}>Yönetici Modu Açık</strong>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>Toplam {photos.length} fotoğraf yüklendi.</p>
             </div>
-            <button 
-              className="upload-button" 
-              style={{ fontSize: '0.9rem', padding: '0.5rem 1.25rem', boxShadow: 'none' }}
-              onClick={handleDownloadAll}
-              disabled={isZipping}
-            >
-              {isZipping ? (
-                <>
-                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>ZIP Hazırlanıyor...</span>
-                </>
-              ) : (
-                <>
-                  <Download size={16} />
-                  <span>Tümünü İndir (.ZIP)</span>
-                </>
-              )}
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                className="upload-button" 
+                style={{ fontSize: '0.9rem', padding: '0.5rem 1.25rem', boxShadow: 'none', background: 'transparent', border: '1px solid var(--accent-color)', color: 'var(--accent-color)' }}
+                onClick={() => {
+                  window.history.pushState({}, '', '?kart');
+                  setIsCardView(true);
+                }}
+              >
+                Masa Kartı Tasarımı
+              </button>
+              <button 
+                className="upload-button" 
+                style={{ fontSize: '0.9rem', padding: '0.5rem 1.25rem', boxShadow: 'none' }}
+                onClick={handleDownloadAll}
+                disabled={isZipping}
+              >
+                {isZipping ? (
+                  <>
+                    <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                    <span>ZIP Hazırlanıyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={16} />
+                    <span>Tümünü İndir (.ZIP)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

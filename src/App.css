@@ -383,3 +383,124 @@
 .delete-photo-btn:active {
   transform: scale(0.95);
 }
+
+/* Card Print View */
+.card-print-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f4;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.print-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.printable-card-frame {
+  background: #ffffff;
+  width: 400px;
+  height: 600px;
+  border: 12px double var(--accent-color); /* Double frame border */
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  position: relative;
+  background-color: #E2ECE9; /* Su yeşili background matching our theme */
+  border-radius: 4px;
+}
+
+.card-decor-top, .card-decor-bottom {
+  font-size: 1.25rem;
+  color: var(--accent-color);
+  letter-spacing: 0.2em;
+}
+
+.card-names {
+  font-family: 'Great Vibes', cursive;
+  font-size: 3.5rem;
+  color: var(--accent-color);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-main);
+  margin-top: 0.5rem;
+}
+
+.card-qr-container {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 2px solid var(--accent-color);
+  margin: 1rem 0;
+}
+
+.card-qr-img {
+  width: 180px;
+  height: 180px;
+  display: block;
+}
+
+.card-instruction {
+  max-width: 320px;
+}
+
+.card-instruction .highlight {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+}
+
+.card-instruction p:not(.highlight) {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-light);
+}
+
+.card-footer {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+}
+
+/* Print CSS Rules */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  .card-print-container {
+    background: #ffffff !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    justify-content: flex-start !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .printable-card-frame {
+    box-shadow: none !important;
+    border-color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    margin: 0 auto;
+  }
+}
