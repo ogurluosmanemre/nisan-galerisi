@@ -412,14 +412,34 @@ function App() {
 
   const handleApproveFromLightbox = async (photoId) => {
     await handleApprove(photoId);
-    setSelectedPhotoIndex(null);
+    
+    if (lightboxList.length > 1) {
+      const nextList = lightboxList.filter(p => p.id !== photoId);
+      setLightboxList(nextList);
+      
+      if (selectedPhotoIndex >= nextList.length) {
+        setSelectedPhotoIndex(nextList.length - 1);
+      }
+    } else {
+      setSelectedPhotoIndex(null);
+    }
   };
 
   const handleDeleteFromLightbox = async (photoId) => {
     if (window.confirm("Bu fotoğrafı reddetmek ve silmek istediğinize emin misiniz?")) {
       try {
         await deleteDoc(doc(db, "photos", photoId));
-        setSelectedPhotoIndex(null);
+        
+        if (lightboxList.length > 1) {
+          const nextList = lightboxList.filter(p => p.id !== photoId);
+          setLightboxList(nextList);
+          
+          if (selectedPhotoIndex >= nextList.length) {
+            setSelectedPhotoIndex(nextList.length - 1);
+          }
+        } else {
+          setSelectedPhotoIndex(null);
+        }
       } catch (error) {
         console.error("Error deleting photo from lightbox:", error);
         alert("Fotoğraf silinirken bir hata oluştu.");
@@ -752,7 +772,7 @@ function App() {
       )}
 
       {/* Lightbox Modal for Fullscreen Photo View with Navigation */}
-      {selectedPhotoIndex !== null && photos[selectedPhotoIndex] && (
+      {selectedPhotoIndex !== null && lightboxList[selectedPhotoIndex] && (
         <div 
           className="lightbox-overlay" 
           onClick={() => setSelectedPhotoIndex(null)}
